@@ -30,6 +30,8 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdarg.h>
+#include <string.h>
 
 #if HAVE_PTY_H
 #include <pty.h>
