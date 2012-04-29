@@ -172,7 +172,7 @@ Connection::Connection( const char *desired_ip, const char *desired_port ) /* se
   if ( desired_ip_addr != INADDR_ANY ) {
     try {
       if ( try_bind( sock, desired_ip_addr, desired_port_no ) ) { return; }
-    } catch ( NetworkException e ) {
+    } catch ( const NetworkException& e ) {
       struct in_addr sin_addr;
       sin_addr.s_addr = desired_ip_addr;
       fprintf( stderr, "Error binding to IP %s: %s: %s\n",
@@ -184,7 +184,7 @@ Connection::Connection( const char *desired_ip, const char *desired_port ) /* se
   /* now try any local interface */
   try {
     if ( try_bind( sock, INADDR_ANY, desired_port_no ) ) { return; }
-  } catch ( NetworkException e ) {
+  } catch ( const NetworkException& e ) {
     fprintf( stderr, "Error binding to any interface: %s: %s\n",
 	     e.function.c_str(), strerror( e.the_errno ) );
     throw; /* this time it's fatal */
@@ -276,20 +276,20 @@ string Connection::recv( void )
 {
   struct sockaddr_in packet_remote_addr;
 
-  char buf[ RECEIVE_MTU ];
+  char buf[ Session::RECEIVE_MTU ];
 
   socklen_t addrlen = sizeof( packet_remote_addr );
 
-  ssize_t received_len = recvfrom( sock, buf, RECEIVE_MTU, 0, (sockaddr *)&packet_remote_addr, &addrlen );
+  ssize_t received_len = recvfrom( sock, buf, Session::RECEIVE_MTU, 0, (sockaddr *)&packet_remote_addr, &addrlen );
 
   if ( received_len < 0 ) {
     throw NetworkException( "recvfrom", errno );
   }
 
-  if ( received_len > RECEIVE_MTU ) {
+  if ( received_len > Session::RECEIVE_MTU ) {
     char buffer[ 2048 ];
     snprintf( buffer, 2048, "Received oversize datagram (size %d) and limit is %d\n",
-	      static_cast<int>( received_len ), RECEIVE_MTU );
+	      static_cast<int>( received_len ), Session::RECEIVE_MTU );
     throw NetworkException( buffer, errno );
   }
 
