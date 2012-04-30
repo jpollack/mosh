@@ -309,10 +309,13 @@ int main( int argc, char *_argv[] )
 
   string color_invocation = client + " -c";
   FILE *color_file = popen( color_invocation.c_str(), "r" );
-  size_t n;
-  char *buf = fgetln( color_file, &n );
-  if ( !buf ) {
-    die( "%s: Can't count colors: %d", argv[0], errno );
+  ssize_t n;
+  char *buf = NULL;
+  size_t buf_len = 0;
+
+  n = getline (&buf, &buf_len, color_file);
+  if (n == -1) {
+      die( "%s: Can't count colors: %d", argv[0], errno );
   }
   string colors = string( buf, n );
   pclose( color_file );
@@ -384,7 +387,8 @@ int main( int argc, char *_argv[] )
 
   FILE *pty_file = fdopen( pty, "r" );
   string line;
-  while ( ( buf = fgetln( pty_file, &n ) ) ) {
+
+  while ( ( n = getline (&buf, &buf_len, pty_file) ) > -1 ) {
     line = string( buf, n );
     line = line.erase( line.find_last_not_of( "\n" ) );
     if ( line.compare( 0, 8, "MOSH IP " ) == 0 ) {
