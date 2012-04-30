@@ -45,7 +45,7 @@
 
 using namespace std;
 
-static const char *const MOSH_VERSION = "1.1.95";
+static const char *const MOSH_VERSION = "1.2";
 
 inline string shell_quote_string( string x )
 {
