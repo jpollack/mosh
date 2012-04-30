@@ -246,7 +246,9 @@ int main( int argc, char *_argv[] )
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ( ( rv = getaddrinfo( host.c_str(), port_request.size() ? port_request.c_str() : "ssh", &hints, &servinfo ) ) != 0 ) {
+    /* If 'ssh' isn't in /etc/services, then fall back to hardcoding port 22 */
+    if ( ( ( rv = getaddrinfo( host.c_str(), port_request.size() ? port_request.c_str() : "ssh", &hints, &servinfo ) ) != 0 ) 
+         && ( ( rv = getaddrinfo( host.c_str(), port_request.size() ? port_request.c_str() : "22", &hints, &servinfo ) ) != 0 ) ) {
       die( "%s: Could not resolve hostname %s: getaddrinfo: %s", argv[0], host.c_str(), gai_strerror( rv ) );
     }
 
